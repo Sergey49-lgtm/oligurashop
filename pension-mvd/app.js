@@ -3,6 +3,14 @@
 
   var STORAGE_KEY = 'pension-mvd:v1';
   var form = document.getElementById('form');
+  var rankSelect = document.getElementById('rankSelect');
+  var activeDate = PensionCalc.currentSalaryDate(new Date().toISOString().slice(0, 10));
+  PensionCalc.rankSalaries(activeDate).forEach(function (r, idx) {
+    var o = document.createElement('option');
+    o.value = String(idx);
+    o.textContent = r.name;
+    rankSelect.appendChild(o);
+  });
   var defaults = snapshot();
 
   var money = new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 2 });
@@ -89,6 +97,11 @@
     if (saved) restore(saved);
   } catch (e) { /* игнорируем */ }
 
+  rankSelect.addEventListener('change', function () {
+    if (rankSelect.value === '') return;
+    form.elements.rankSalary.value = PensionCalc.rankSalaries(activeDate)[Number(rankSelect.value)].salary;
+  });
+  form.elements.rankSalary.addEventListener('input', function () { rankSelect.value = ''; });
   form.addEventListener('input', render);
   form.addEventListener('change', render);
   form.addEventListener('submit', function (e) { e.preventDefault(); });
@@ -101,12 +114,11 @@
 
   // ----- Таблица окладов -----
   var rub = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 });
-  var tab = 'ranks';
+  var tab = 'district';
   var dateSelect = document.getElementById('salaryDate');
   var capital = document.getElementById('capital');
   var table = document.getElementById('salaries');
-  var today = new Date().toISOString().slice(0, 10);
-  dateSelect.value = today >= '2026-10-01' ? '2026-10-01' : '2025-10-01';
+  dateSelect.value = activeDate >= '2026-10-01' ? '2026-10-01' : '2025-10-01';
 
   function pick(field, value, label) {
     return '<button type="button" class="pick" data-field="' + field + '" data-value="' + value +
@@ -123,14 +135,7 @@
     var head, rows, note;
     document.getElementById('capitalWrap').hidden = tab !== 'district';
 
-    if (tab === 'ranks') {
-      head = ['Специальное звание', 'Оклад 2012', 'Оклад сейчас'];
-      rows = PensionCalc.rankSalaries(onDate).map(function (r) {
-        return [r.name, rub.format(r.base) + ' ₽', pick('rankSalary', r.salary, '')];
-      });
-      note = 'Базовые оклады — постановление Правительства РФ от 03.11.2011 № 878. Текущие суммы рассчитаны ' +
-        'индексацией с округлением до рубля вверх; сверяйте с расчётным листком.';
-    } else if (tab === 'district') {
+    if (tab === 'district') {
       head = ['Должность', 'Оклад 2012', 'Оклад сейчас'];
       rows = PensionCalc.POSITIONS_DISTRICT.map(function (r) {
         var cell = pick('positionSalary', current(r.base, onDate), r.baseMax ? 'от' : '');
@@ -166,6 +171,28 @@
     document.getElementById('tableNote').textContent = note;
   }
 
+  var allYears = document.getElementById('allYears');
+  function renderRanks() {
+    var ix = PensionCalc.INDEXATIONS;
+    var show = function (x) { return allYears.checked || x.date >= '2022-01-01'; };
+    var head = '<thead><tr><th scope="col">Звание</th><th scope="col">2012</th>' + ix.filter(show).map(function (x) {
+      var label = x.date.slice(8, 10) + '.' + x.date.slice(5, 7) + '.' + x.date.slice(0, 4);
+      var cls = x.date === activeDate ? ' class="active"' : '';
+      return '<th scope="col"' + cls + '>' + label + (x.planned ? '<br><small>план</small>' : '') +
+        '<br><small>+' + String(x.percent).replace('.', ',') + ' %</small></th>';
+    }).join('') + '</tr></thead>';
+    var body = PensionCalc.rankHistory().map(function (r) {
+      return '<tr><th scope="row">' + r.name + '</th><td>' + rub.format(r.base) + '</td>' + r.steps.map(function (v, k) {
+        var d = ix[k].date;
+        if (!show(ix[k])) return '';
+        var cls = d === activeDate ? ' class="active"' : '';
+        var cell = d >= activeDate ? pick('rankSalary', v, '') : rub.format(v);
+        return '<td' + cls + '>' + cell + '</td>';
+      }).join('') + '</tr>';
+    }).join('');
+    document.getElementById('ranksTable').innerHTML = head + '<tbody>' + body + '</tbody>';
+  }
+
   document.querySelector('.tabs').addEventListener('click', function (e) {
     var b = e.target.closest('[data-tab]');
     if (!b) return;
@@ -178,7 +205,7 @@
   dateSelect.addEventListener('change', renderTable);
   capital.addEventListener('change', renderTable);
 
-  table.addEventListener('click', function (e) {
+  function onPick(e) {
     var b = e.target.closest('.pick');
     if (!b) return;
     var input = form.elements[b.getAttribute('data-field')];
@@ -189,7 +216,12 @@
     input.classList.remove('flash');
     void input.offsetWidth;
     input.classList.add('flash');
-  });
+    if (input.name === 'rankSalary') rankSelect.value = '';
+  }
+  table.addEventListener('click', onPick);
+  document.getElementById('ranksTable').addEventListener('click', onPick);
 
+  allYears.addEventListener('change', renderRanks);
+  renderRanks();
   renderTable();
 })();

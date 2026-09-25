@@ -22,10 +22,15 @@
         <label>Оклад по должности, ₽
           <input type="number" name="positionSalary" min="0" step="1" value="30000" inputmode="decimal">
         </label>
+        <label>Специальное звание
+          <select name="rank" id="rankSelect">
+            <option value="">— указать оклад вручную —</option>
+          </select>
+        </label>
         <label>Оклад по специальному званию, ₽
           <input type="number" name="rankSalary" min="0" step="1" value="20000" inputmode="decimal">
         </label>
-        <p class="hint">Оклады смотрите в расчётном листке или <a href="#oklady">выберите в таблице окладов</a>. Премии, материальная помощь и прочие надбавки в пенсию не входят.</p>
+        <p class="hint">Оклады смотрите в расчётном листке или выберите в таблицах <a href="#zvaniya">по званиям</a> и <a href="#oklady">по должностям</a>. Премии, материальная помощь и прочие надбавки в пенсию не входят.</p>
       </fieldset>
 
       <fieldset>
@@ -127,13 +132,24 @@
     </section>
   </main>
 
+  <section id="zvaniya" class="wrap tables-wrap">
+    <div class="panel">
+      <h2 class="tables-title">Оклады по специальным званиям</h2>
+      <p class="hint">По годам индексации. Нажмите на действующий оклад, чтобы подставить его в расчёт.</p>
+      <label class="check"><input type="checkbox" id="allYears"> Показать все индексации с 2018 года</label>
+      <div class="scroll-x">
+        <table class="ranks" id="ranksTable"></table>
+      </div>
+      <p class="hint">Базовые оклады — постановление Правительства РФ от 03.11.2011 № 878. Суммы после индексаций рассчитаны с округлением до рубля вверх; сверяйте с расчётным листком.</p>
+    </div>
+  </section>
+
   <section id="oklady" class="wrap tables-wrap">
     <div class="panel">
-      <h2 class="tables-title">Таблица окладов</h2>
+      <h2 class="tables-title">Оклады по должностям</h2>
       <p class="hint">Нажмите на сумму, чтобы подставить её в расчёт.</p>
       <div class="tabs" role="tablist">
-        <button type="button" role="tab" id="tab-ranks" data-tab="ranks" aria-selected="true">Звания</button>
-        <button type="button" role="tab" id="tab-district" data-tab="district" aria-selected="false">Районный отдел</button>
+        <button type="button" role="tab" id="tab-district" data-tab="district" aria-selected="true">Районный отдел</button>
         <button type="button" role="tab" id="tab-central" data-tab="central" aria-selected="false">Центральный аппарат</button>
         <button type="button" role="tab" id="tab-typical" data-tab="typical" aria-selected="false">Типовые должности</button>
       </div>

@@ -175,6 +175,15 @@ a { color: var(--accent); }
 }
 .pick:hover, .pick:focus-visible { border-color: var(--accent); }
 .pick + .pick { margin-left: 4px; }
+.ranks { font-size: .88rem; }
+.ranks thead th { font-weight: 600; color: var(--muted); text-align: right; line-height: 1.25; }
+.ranks thead th:first-child { text-align: left; }
+.ranks small { font-weight: 400; }
+.ranks th[scope="row"] { font-weight: 400; white-space: nowrap; position: sticky; left: 0; background: var(--panel); padding-right: 12px; }
+.ranks thead th:first-child { position: sticky; left: 0; background: var(--panel); }
+.ranks td { color: var(--muted); }
+.ranks .active { background: var(--accent-soft); color: var(--text); }
+.ranks thead th.active { color: var(--accent); }
 @media (max-width: 560px) {
   .salaries th:nth-child(2), .salaries td.muted { display: none; }
   .salaries td { white-space: normal; }
@@ -225,6 +234,15 @@ input.flash { animation: flash 1.2s ease-out; }
 }
 .pick:hover, .pick:focus-visible { border-color: var(--accent); }
 .pick + .pick { margin-left: 4px; }
+.ranks { font-size: .88rem; }
+.ranks thead th { font-weight: 600; color: var(--muted); text-align: right; line-height: 1.25; }
+.ranks thead th:first-child { text-align: left; }
+.ranks small { font-weight: 400; }
+.ranks th[scope="row"] { font-weight: 400; white-space: nowrap; position: sticky; left: 0; background: var(--panel); padding-right: 12px; }
+.ranks thead th:first-child { position: sticky; left: 0; background: var(--panel); }
+.ranks td { color: var(--muted); }
+.ranks .active { background: var(--accent-soft); color: var(--text); }
+.ranks thead th.active { color: var(--accent); }
 @media (max-width: 560px) {
   .salaries th:nth-child(2), .salaries td.muted { display: none; }
   .salaries td { white-space: normal; }

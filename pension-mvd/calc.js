@@ -139,6 +139,25 @@
     });
   }
 
+  // История окладов по званию: сумма 2012 года и после каждой индексации
+  function rankHistory() {
+    return RANKS.map(function (r) {
+      var value = r.base;
+      var steps = INDEXATIONS.map(function (ix) {
+        value = Math.ceil(value * (1 + ix.percent / 100) - 1e-9);
+        return value;
+      });
+      return { name: r.name, base: r.base, steps: steps };
+    });
+  }
+
+  // Дата последней действующей индексации на указанный день (YYYY-MM-DD)
+  function currentSalaryDate(today) {
+    var d = '2012-01-01';
+    INDEXATIONS.forEach(function (ix) { if (ix.date <= today) d = ix.date; });
+    return d;
+  }
+
   function round2(x) {
     return Math.round(x * 100) / 100;
   }
@@ -329,6 +348,8 @@
     indexFrom: indexFrom,
     capitalRegion: capitalRegion,
     rankSalaries: rankSalaries,
+    rankHistory: rankHistory,
+    currentSalaryDate: currentSalaryDate,
     servicePayBonusPercent: servicePayBonusPercent,
     seniorityPercent: seniorityPercent,
     mixedPercent: mixedPercent,

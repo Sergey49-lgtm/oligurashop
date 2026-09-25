@@ -101,3 +101,12 @@ test('оклады по званиям: таблица и индексация �
   assert.strictEqual(C.indexFrom(34388, '2026-04-27', '2025-12-31'), 34388);
   assert.strictEqual(C.indexFrom(34388, '2026-04-27', '2026-10-01'), Math.ceil(34388 * 1.04));
 });
+
+test('история окладов по званию и действующая дата индексации', () => {
+  const major = C.rankHistory().find((r) => r.name === 'Майор');
+  assert.strictEqual(major.base, 11500);
+  assert.strictEqual(major.steps.length, C.INDEXATIONS.length);
+  assert.strictEqual(major.steps[7], C.indexSalary(11500, '2025-10-01'));
+  assert.strictEqual(C.currentSalaryDate('2026-09-25'), '2025-10-01');
+  assert.strictEqual(C.currentSalaryDate('2026-10-01'), '2026-10-01');
+});
