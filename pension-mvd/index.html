@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Пенсия МВД</title>
+  <meta name="description" content="Калькулятор пенсии за выслугу лет сотрудников органов внутренних дел РФ">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <h1>Калькулятор пенсии МВД</h1>
+      <p class="lead">Пенсия за выслугу лет по Закону РФ № 4468-1. Параметры на 2026 год, все значения можно поменять.</p>
+    </div>
+  </header>
+
+  <main class="wrap layout">
+    <form id="form" class="panel" autocomplete="off">
+      <fieldset>
+        <legend>Денежное довольствие</legend>
+        <label>Оклад по должности, ₽
+          <input type="number" name="positionSalary" min="0" step="1" value="30000" inputmode="decimal">
+        </label>
+        <label>Оклад по специальному званию, ₽
+          <input type="number" name="rankSalary" min="0" step="1" value="20000" inputmode="decimal">
+        </label>
+        <p class="hint">Оклады смотрите в расчётном листке. Премии, материальная помощь и прочие надбавки в пенсию не входят.</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Основание</legend>
+        <div class="seg" role="radiogroup">
+          <label><input type="radio" name="mode" value="seniority" checked> Выслуга 20+ лет</label>
+          <label><input type="radio" name="mode" value="mixed"> Смешанный стаж</label>
+        </div>
+        <div class="row">
+          <label>Выслуга, лет
+            <input type="number" name="serviceYears" min="0" max="60" step="1" value="20">
+          </label>
+          <label>и месяцев
+            <input type="number" name="serviceMonths" min="0" max="11" step="1" value="0">
+          </label>
+        </div>
+        <p class="hint">С учётом льготного исчисления (например, служба в районах Крайнего Севера, в зоне боевых действий) и зачёта учёбы.</p>
+        <div id="mixedFields" hidden>
+          <div class="row">
+            <label>Общий трудовой стаж, лет
+              <input type="number" name="totalWorkYears" min="0" max="70" step="1" value="25">
+            </label>
+            <label>и месяцев
+              <input type="number" name="totalWorkMonths" min="0" max="11" step="1" value="0">
+            </label>
+          </div>
+          <label>Возраст на день увольнения
+            <input type="number" name="age" min="18" max="100" step="1" value="45">
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Надбавки к пенсии</legend>
+        <label>Нетрудоспособные иждивенцы
+          <select name="dependents">
+            <option value="0">нет</option>
+            <option value="1">1 (+32 % РРП)</option>
+            <option value="2">2 (+64 % РРП)</option>
+            <option value="3">3 и более (+100 % РРП)</option>
+          </select>
+        </label>
+        <label class="check"><input type="checkbox" name="combatVeteran"> Ветеран боевых действий (+32 % РРП)</label>
+        <label class="check"><input type="checkbox" name="disabledGroup1"> Инвалид I группы (+100 % РРП)</label>
+        <label class="check"><input type="checkbox" name="age80"> Возраст 80 лет и старше (+100 % РРП)</label>
+        <label>Районный коэффициент по месту жительства
+          <select name="regionalCoef">
+            <option value="1">нет (1,0)</option>
+            <option value="1.15">1,15</option>
+            <option value="1.2">1,2</option>
+            <option value="1.25">1,25</option>
+            <option value="1.3">1,3</option>
+            <option value="1.4">1,4</option>
+            <option value="1.5">1,5</option>
+            <option value="1.6">1,6</option>
+            <option value="1.7">1,7</option>
+            <option value="1.8">1,8</option>
+            <option value="2">2,0</option>
+          </select>
+        </label>
+      </fieldset>
+
+      <details class="advanced">
+        <summary>Дополнительные параметры</summary>
+        <label>Понижающий коэффициент, %
+          <input type="number" name="reductionCoef" min="0" max="100" step="0.01" value="93.59">
+        </label>
+        <label>Расчётный размер пенсии (РРП), ₽
+          <input type="number" name="rrp" min="0" step="0.01" value="9513.42">
+        </label>
+        <label>Надбавка за стаж службы, % (пусто — по таблице)
+          <input type="number" name="bonusPercent" min="0" max="100" step="1" placeholder="авто">
+        </label>
+        <label>Индексация окладов для прогноза, %
+          <input type="number" name="salaryIndexation" min="-50" max="100" step="0.1" value="0">
+        </label>
+        <p class="hint">Например, 4 — чтобы увидеть пенсию после индексации окладов с 1 октября 2026 года.</p>
+        <button type="button" id="reset" class="ghost">Сбросить всё</button>
+      </details>
+    </form>
+
+    <section class="panel result" aria-live="polite">
+      <p class="caption">Пенсия в месяц</p>
+      <p class="total" id="total">—</p>
+      <p class="sub" id="totalSub"></p>
+      <ul class="warnings" id="warnings"></ul>
+
+      <h2>Как посчитано</h2>
+      <table class="breakdown" id="breakdown"></table>
+
+      <h2>Если послужить ещё</h2>
+      <p class="hint">При тех же окладах и коэффициентах.</p>
+      <table class="forecast" id="forecast">
+        <thead><tr><th>Выслуга</th><th>%</th><th>Пенсия</th><th>Прибавка</th></tr></thead>
+        <tbody></tbody>
+      </table>
+
+      <button type="button" class="ghost print" onclick="window.print()">Распечатать расчёт</button>
+    </section>
+  </main>
+
+  <footer class="wrap foot">
+    <p>Формула: (оклад по должности + оклад по званию) × (1 + надбавка за стаж) × понижающий коэффициент × процент за выслугу + надбавки от РРП, всё × районный коэффициент.</p>
+    <p>Расчёт ориентировочный и не заменяет расчёт пенсионного отдела (ЦФО) МВД. Нормы: ст. 13, 14, 17, 43, 48 Закона РФ от 12.02.1993 № 4468-1; ч. 7 ст. 2 Федерального закона от 19.07.2011 № 247-ФЗ.</p>
+  </footer>
+
+  <script src="calc.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
