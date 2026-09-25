@@ -23,6 +23,122 @@
     rrp: 9513.42
   };
 
+  // Оклады по специальным званиям на 01.01.2012 (постановление Правительства РФ № 878)
+  var RANKS = [
+    { name: 'Рядовой полиции', base: 5000 },
+    { name: 'Младший сержант', base: 6000 },
+    { name: 'Сержант', base: 6500 },
+    { name: 'Старший сержант', base: 7000 },
+    { name: 'Старшина', base: 7500 },
+    { name: 'Прапорщик', base: 8000 },
+    { name: 'Старший прапорщик', base: 8500 },
+    { name: 'Младший лейтенант', base: 9500 },
+    { name: 'Лейтенант', base: 10000 },
+    { name: 'Старший лейтенант', base: 10500 },
+    { name: 'Капитан', base: 11000 },
+    { name: 'Майор', base: 11500 },
+    { name: 'Подполковник', base: 12000 },
+    { name: 'Полковник', base: 13000 },
+    { name: 'Генерал-майор', base: 20000 },
+    { name: 'Генерал-лейтенант', base: 22000 },
+    { name: 'Генерал-полковник', base: 25000 },
+    { name: 'Генерал полиции РФ', base: 27000 }
+  ];
+
+  // Нетиповые должности территориального органа районного уровня (приказ МВД № 813,
+  // прил. 22): оклады 2012 года, из которых получены суммы приказа (19 976 ₽ = 15 000 ₽
+  // после индексаций по 01.10.2023). Москва, СПб, Московская и Ленинградская обл. — +10 %.
+  var POSITIONS_DISTRICT = [
+    { name: 'Дознаватель, участковый уполномоченный', base: 15000 },
+    { name: 'Юрисконсульт', base: 15000 },
+    { name: 'Инженер отдела связи и защиты информации', base: 15000 },
+    { name: 'Старший дознаватель, старший участковый', base: 15500 },
+    { name: 'Начальник группы дознания', base: 16000 },
+    { name: 'Начальник дежурной части', base: 17000, baseMax: 17500 },
+    { name: 'Начальник отделения', base: 17500 },
+    { name: 'Заместитель начальника отдела', base: 17500 },
+    { name: 'Начальник отдела', base: 18000 },
+    { name: 'Заместитель начальника полиции', base: 18500 },
+    { name: 'Начальник отделения МВД', base: 19000 }
+  ];
+
+  // Нетиповые должности центрального аппарата, приказ МВД России от 27.04.2026 № 247
+  var POSITIONS_CENTRAL = [
+    { name: 'Первый заместитель Министра — начальник службы', salary: 64473 },
+    { name: 'Статс-секретарь — заместитель Министра', salary: 63039 },
+    { name: 'Первый заместитель начальника службы', salary: 58026 },
+    { name: 'Начальник НЦБ Интерпола', salary: 51579 },
+    { name: 'Помощник Министра', salary: 50146 },
+    { name: 'Первый заместитель начальника управления', salary: 48713 },
+    { name: 'Начальник управления, центра, инспекции', salary: 47281 },
+    { name: 'Заместитель начальника управления, центра', salary: 45849 },
+    { name: 'Начальник отдела', salary: 42983 },
+    { name: 'Заместитель начальника отдела', salary: 41549 },
+    { name: 'Начальник отделения', salary: 40118 },
+    { name: 'Старший дознаватель, эксперт, инспектор, инженер', salary: 35819 },
+    { name: 'Дознаватель, эксперт, инспектор, инженер', salary: 34388 }
+  ];
+
+  // Типовые должности, оклады 2012 года (постановление № 878) — диапазоны по уровням органов
+  var POSITIONS_TYPICAL = [
+    { name: 'Первый заместитель Министра', base: 45000 },
+    { name: 'Заместитель Министра', base: 44000 },
+    { name: 'Начальник департамента, главного управления', base: 37000 },
+    { name: 'Начальник управления МВД', base: 36000 },
+    { name: 'Заместитель начальника департамента', base: 35000 },
+    { name: 'Начальник территориального органа окружного уровня', base: 34000 },
+    { name: 'Начальник отдела в центральном аппарате', base: 30000 },
+    { name: 'Начальник управления в территориальном органе', base: 27000 },
+    { name: 'Начальник отдела в территориальном органе', base: 20500, baseMax: 22000 },
+    { name: 'Начальник отделения', base: 16500, baseMax: 28000 },
+    { name: 'Старший следователь, оперуполномоченный, инспектор', base: 16500, baseMax: 25000 },
+    { name: 'Следователь, оперуполномоченный, эксперт, инспектор', base: 15000, baseMax: 24000 },
+    { name: 'Младший инспектор', base: 10000, baseMax: 14000 },
+    { name: 'Старший полицейский', base: 9500, baseMax: 13500 },
+    { name: 'Полицейский', base: 9000, baseMax: 13000 }
+  ];
+
+  // Индексации окладов денежного содержания сотрудников ОВД после 2012 года
+  var INDEXATIONS = [
+    { date: '2018-01-01', percent: 4 },
+    { date: '2019-10-01', percent: 4.3 },
+    { date: '2020-10-01', percent: 3 },
+    { date: '2021-10-01', percent: 3.7 },
+    { date: '2022-10-01', percent: 4 },
+    { date: '2023-10-01', percent: 10.5 },
+    { date: '2024-10-01', percent: 5.1 },
+    { date: '2025-10-01', percent: 7.6 },
+    { date: '2026-10-01', percent: 4, planned: true }
+  ];
+
+  // Оклад на дату: последовательная индексация с округлением до рубля в большую сторону
+  function indexSalary(base, onDate) {
+    var value = base;
+    INDEXATIONS.forEach(function (ix) {
+      if (ix.date <= onDate) value = Math.ceil(value * (1 + ix.percent / 100) - 1e-9);
+    });
+    return value;
+  }
+
+  // Индексации после даты `fromDate` (для сумм, уже действующих на эту дату)
+  function indexFrom(value, fromDate, onDate) {
+    INDEXATIONS.forEach(function (ix) {
+      if (ix.date > fromDate && ix.date <= onDate) value = Math.ceil(value * (1 + ix.percent / 100) - 1e-9);
+    });
+    return value;
+  }
+
+  // Повышение на 10 % для Москвы, Санкт-Петербурга, Московской и Ленинградской областей
+  function capitalRegion(value) {
+    return Math.ceil(value * 1.1 - 1e-9);
+  }
+
+  function rankSalaries(onDate) {
+    return RANKS.map(function (r) {
+      return { name: r.name, base: r.base, salary: indexSalary(r.base, onDate) };
+    });
+  }
+
   function round2(x) {
     return Math.round(x * 100) / 100;
   }
@@ -203,6 +319,16 @@
 
   return {
     DEFAULTS: DEFAULTS,
+    RANKS: RANKS,
+    INDEXATIONS: INDEXATIONS,
+    POSITIONS_DISTRICT: POSITIONS_DISTRICT,
+    POSITIONS_CENTRAL: POSITIONS_CENTRAL,
+    POSITIONS_TYPICAL: POSITIONS_TYPICAL,
+    CENTRAL_ORDER_DATE: '2026-04-27',
+    indexSalary: indexSalary,
+    indexFrom: indexFrom,
+    capitalRegion: capitalRegion,
+    rankSalaries: rankSalaries,
     servicePayBonusPercent: servicePayBonusPercent,
     seniorityPercent: seniorityPercent,
     mixedPercent: mixedPercent,

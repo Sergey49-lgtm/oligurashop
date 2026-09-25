@@ -98,4 +98,98 @@
   });
 
   render();
+
+  // ----- Таблица окладов -----
+  var rub = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 });
+  var tab = 'ranks';
+  var dateSelect = document.getElementById('salaryDate');
+  var capital = document.getElementById('capital');
+  var table = document.getElementById('salaries');
+  var today = new Date().toISOString().slice(0, 10);
+  dateSelect.value = today >= '2026-10-01' ? '2026-10-01' : '2025-10-01';
+
+  function pick(field, value, label) {
+    return '<button type="button" class="pick" data-field="' + field + '" data-value="' + value +
+      '" title="Подставить: ' + label + '">' + (label ? label + ' ' : '') + rub.format(value) + ' ₽</button>';
+  }
+
+  function current(base, onDate) {
+    var v = PensionCalc.indexSalary(base, onDate);
+    return capital.checked && tab === 'district' ? PensionCalc.capitalRegion(v) : v;
+  }
+
+  function renderTable() {
+    var onDate = dateSelect.value;
+    var head, rows, note;
+    document.getElementById('capitalWrap').hidden = tab !== 'district';
+
+    if (tab === 'ranks') {
+      head = ['Специальное звание', 'Оклад 2012', 'Оклад сейчас'];
+      rows = PensionCalc.rankSalaries(onDate).map(function (r) {
+        return [r.name, rub.format(r.base) + ' ₽', pick('rankSalary', r.salary, '')];
+      });
+      note = 'Базовые оклады — постановление Правительства РФ от 03.11.2011 № 878. Текущие суммы рассчитаны ' +
+        'индексацией с округлением до рубля вверх; сверяйте с расчётным листком.';
+    } else if (tab === 'district') {
+      head = ['Должность', 'Оклад 2012', 'Оклад сейчас'];
+      rows = PensionCalc.POSITIONS_DISTRICT.map(function (r) {
+        var cell = pick('positionSalary', current(r.base, onDate), r.baseMax ? 'от' : '');
+        if (r.baseMax) cell += pick('positionSalary', current(r.baseMax, onDate), 'до');
+        return [r.name, rub.format(r.base) + (r.baseMax ? '–' + rub.format(r.baseMax) : '') + ' ₽', cell];
+      });
+      note = 'Нетиповые должности территориального органа районного уровня (приказ МВД России № 813, прил. 22). ' +
+        'В приказе суммы на 01.10.2023 (например, 19 976 ₽ у участкового); здесь они доиндексированы на 5,1 % (2024) и 7,6 % (2025).';
+    } else if (tab === 'central') {
+      head = ['Должность', 'По приказу № 247', 'Оклад сейчас'];
+      rows = PensionCalc.POSITIONS_CENTRAL.map(function (r) {
+        var now = PensionCalc.indexFrom(r.salary, PensionCalc.CENTRAL_ORDER_DATE, onDate);
+        return [r.name, rub.format(r.salary) + ' ₽', pick('positionSalary', now, '')];
+      });
+      note = 'Нетиповые должности центрального аппарата — приказ МВД России от 27.04.2026 № 247 ' +
+        '(зарегистрирован в Минюсте 04.06.2026, заменил приказ № 373 от 16.06.2025).';
+    } else {
+      head = ['Должность', 'Оклад 2012', 'Оклад сейчас'];
+      rows = PensionCalc.POSITIONS_TYPICAL.map(function (r) {
+        var cell = pick('positionSalary', current(r.base, onDate), r.baseMax ? 'от' : '');
+        if (r.baseMax) cell += pick('positionSalary', current(r.baseMax, onDate), 'до');
+        return [r.name, rub.format(r.base) + (r.baseMax ? '–' + rub.format(r.baseMax) : '') + ' ₽', cell];
+      });
+      note = 'Типовые должности, постановление № 878. Размер зависит от уровня органа: центральный аппарат, ' +
+        'окружной, региональный или районный. Для Москвы, Санкт-Петербурга, Московской и Ленинградской областей ' +
+        'оклады отдельных территориальных органов выше на 10 %.';
+    }
+
+    table.innerHTML = '<thead><tr>' + head.map(function (h) { return '<th scope="col">' + h + '</th>'; }).join('') +
+      '</tr></thead><tbody>' + rows.map(function (r) {
+        return '<tr><th scope="row">' + r[0] + '</th><td class="muted">' + r[1] + '</td><td>' + r[2] + '</td></tr>';
+      }).join('') + '</tbody>';
+    document.getElementById('tableNote').textContent = note;
+  }
+
+  document.querySelector('.tabs').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-tab]');
+    if (!b) return;
+    tab = b.getAttribute('data-tab');
+    Array.prototype.forEach.call(this.querySelectorAll('[data-tab]'), function (x) {
+      x.setAttribute('aria-selected', x === b ? 'true' : 'false');
+    });
+    renderTable();
+  });
+  dateSelect.addEventListener('change', renderTable);
+  capital.addEventListener('change', renderTable);
+
+  table.addEventListener('click', function (e) {
+    var b = e.target.closest('.pick');
+    if (!b) return;
+    var input = form.elements[b.getAttribute('data-field')];
+    input.value = b.getAttribute('data-value');
+    render();
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    input.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+    input.classList.remove('flash');
+    void input.offsetWidth;
+    input.classList.add('flash');
+  });
+
+  renderTable();
 })();

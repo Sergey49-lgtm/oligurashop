@@ -138,10 +138,104 @@ button.ghost {
 button.ghost:hover { border-color: var(--accent); }
 .print { margin-top: 16px; }
 
+a { color: var(--accent); }
+
+.tables-wrap { padding-bottom: 20px; }
+.tables-title { font-size: 1.25rem; margin: 0 0 4px; }
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+.tabs button {
+  font: inherit;
+  font-size: .92rem;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+.tabs button[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--panel); }
+.table-controls { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: end; margin-bottom: 8px; }
+.table-controls > label:first-child { flex: 0 1 280px; }
+.table-controls .check { margin-bottom: 10px; }
+.scroll-x { overflow-x: auto; }
+.salaries th { font-weight: 400; }
+.salaries thead th { font-weight: 600; color: var(--muted); }
+.salaries thead th:not(:first-child) { text-align: right; }
+.salaries td.muted { color: var(--muted); }
+.salaries td { white-space: nowrap; }
+.pick {
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  padding: 2px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--accent-soft);
+  color: var(--text);
+  cursor: pointer;
+}
+.pick:hover, .pick:focus-visible { border-color: var(--accent); }
+.pick + .pick { margin-left: 4px; }
+@media (max-width: 560px) {
+  .salaries th:nth-child(2), .salaries td.muted { display: none; }
+  .salaries td { white-space: normal; }
+  .pick { display: block; margin-left: auto; white-space: nowrap; }
+  .pick + .pick { margin: 4px 0 0 auto; }
+}
+input.flash { animation: flash 1.2s ease-out; }
+@keyframes flash { from { box-shadow: 0 0 0 3px var(--accent); } to { box-shadow: 0 0 0 0 transparent; } }
+@media (prefers-reduced-motion: reduce) { input.flash { animation: none; } }
+
 .foot { color: var(--muted); font-size: .85rem; padding-bottom: 32px; }
 
 @media print {
-  .top, form, .print, .foot { display: none; }
+  .top, form, .print, a { color: var(--accent); }
+
+.tables-wrap { padding-bottom: 20px; }
+.tables-title { font-size: 1.25rem; margin: 0 0 4px; }
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+.tabs button {
+  font: inherit;
+  font-size: .92rem;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+.tabs button[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--panel); }
+.table-controls { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: end; margin-bottom: 8px; }
+.table-controls > label:first-child { flex: 0 1 280px; }
+.table-controls .check { margin-bottom: 10px; }
+.scroll-x { overflow-x: auto; }
+.salaries th { font-weight: 400; }
+.salaries thead th { font-weight: 600; color: var(--muted); }
+.salaries thead th:not(:first-child) { text-align: right; }
+.salaries td.muted { color: var(--muted); }
+.salaries td { white-space: nowrap; }
+.pick {
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  padding: 2px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--accent-soft);
+  color: var(--text);
+  cursor: pointer;
+}
+.pick:hover, .pick:focus-visible { border-color: var(--accent); }
+.pick + .pick { margin-left: 4px; }
+@media (max-width: 560px) {
+  .salaries th:nth-child(2), .salaries td.muted { display: none; }
+  .salaries td { white-space: normal; }
+  .pick { display: block; margin-left: auto; white-space: nowrap; }
+  .pick + .pick { margin: 4px 0 0 auto; }
+}
+input.flash { animation: flash 1.2s ease-out; }
+@keyframes flash { from { box-shadow: 0 0 0 3px var(--accent); } to { box-shadow: 0 0 0 0 transparent; } }
+@media (prefers-reduced-motion: reduce) { input.flash { animation: none; } }
+
+.foot { display: none; }
   .layout { display: block; }
   .panel { border: 0; }
 }

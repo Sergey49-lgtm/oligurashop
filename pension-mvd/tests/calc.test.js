@@ -83,3 +83,21 @@ test('прогноз по годам', () => {
   const rows = C.forecastByYears({ positionSalary: 30000, rankSalary: 20000, serviceYears: 19 }, 3);
   assert.deepStrictEqual(rows.map((r) => r.percent), [0, 50, 53, 56]);
 });
+
+test('индексация окладов воспроизводит суммы приказа МВД № 813 (на 01.10.2023)', () => {
+  const on = '2023-10-01';
+  assert.strictEqual(C.indexSalary(15000, on), 19976);
+  assert.strictEqual(C.indexSalary(15500, on), 20641);
+  assert.strictEqual(C.indexSalary(19000, on), 25301);
+  assert.strictEqual(C.capitalRegion(C.indexSalary(15000, on)), 21974);
+  assert.strictEqual(C.capitalRegion(C.indexSalary(15500, on)), 22706);
+  assert.strictEqual(C.capitalRegion(C.indexSalary(19000, on)), 27832);
+});
+
+test('оклады по званиям: таблица и индексация после даты приказа', () => {
+  assert.strictEqual(C.RANKS.length, 18);
+  const now = C.rankSalaries('2025-10-01');
+  assert.ok(now.every((r) => r.salary > r.base));
+  assert.strictEqual(C.indexFrom(34388, '2026-04-27', '2025-12-31'), 34388);
+  assert.strictEqual(C.indexFrom(34388, '2026-04-27', '2026-10-01'), Math.ceil(34388 * 1.04));
+});
