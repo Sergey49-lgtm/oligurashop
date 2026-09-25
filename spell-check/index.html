@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Проверка правописания</title>
+  <meta name="description" content="Проверка орфографии, грамматики, пунктуации, стиля и логики текста с подсветкой и исправлением ошибок">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <h1>Проверка правописания</h1>
+      <p class="lead">Вставьте текст — программа найдёт ошибки в орфографии, грамматике, пунктуации, стиле и логике, подчеркнёт их и предложит исправления.</p>
+    </div>
+  </header>
+
+  <main class="wrap layout">
+    <section class="panel editor">
+      <div class="panel-head">
+        <h2 id="editorTitle">Текст</h2>
+        <span class="counter" id="charCount">0 символов</span>
+      </div>
+
+      <textarea id="input" aria-labelledby="editorTitle" spellcheck="false"
+        placeholder="Вставьте или напишите текст для проверки…"></textarea>
+
+      <div id="output" class="output" hidden aria-live="polite"></div>
+
+      <div class="actions">
+        <button type="button" id="checkBtn" class="primary">Проверить</button>
+        <button type="button" id="editBtn" hidden>Редактировать</button>
+        <button type="button" id="fixAllBtn" hidden>Исправить всё</button>
+        <button type="button" id="copyBtn" hidden>Скопировать текст</button>
+        <span class="spacer"></span>
+        <button type="button" id="sampleBtn" class="link">Пример</button>
+        <button type="button" id="clearBtn" class="link">Очистить</button>
+      </div>
+      <p id="status" class="status" role="status"></p>
+    </section>
+
+    <aside class="side">
+      <section class="panel">
+        <h2>Найдено</h2>
+        <ul class="legend" id="legend"></ul>
+        <p id="summary" class="summary" hidden></p>
+        <ol id="issues" class="issues"></ol>
+        <p id="empty" class="hint">Здесь появится список ошибок после проверки.</p>
+      </section>
+
+      <section class="panel settings">
+        <h2>Настройки</h2>
+        <label class="check">
+          <input type="checkbox" checked disabled> Встроенные правила
+          <small>частые ошибки, повторы, пробелы, заглавные буквы; без интернета</small>
+        </label>
+        <label class="check">
+          <input type="checkbox" id="useLT" checked> LanguageTool
+          <small>орфография, грамматика, пунктуация; бесплатно, нужен интернет</small>
+        </label>
+        <label>Язык текста
+          <select id="lang">
+            <option value="ru-RU">Русский</option>
+            <option value="uk-UA">Украинский</option>
+            <option value="en-US">Английский (США)</option>
+            <option value="en-GB">Английский (Великобритания)</option>
+            <option value="de-DE">Немецкий</option>
+            <option value="auto">Определить автоматически</option>
+          </select>
+        </label>
+        <label class="check">
+          <input type="checkbox" id="useClaude"> Claude (ИИ-редактор)
+          <small>глубокая проверка: смысл, логика, стиль, сложная пунктуация; нужен ключ API</small>
+        </label>
+        <div id="claudeBox" hidden>
+          <label>Ключ Anthropic API
+            <input type="password" id="apiKey" autocomplete="off" placeholder="sk-ant-…">
+          </label>
+          <p class="hint">Ключ хранится только в этом браузере и отправляется напрямую в Anthropic. Получить ключ: <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>. Проверка платная по тарифам API.</p>
+        </div>
+      </section>
+    </aside>
+  </main>
+
+  <div id="popover" class="popover" role="dialog" hidden></div>
+
+  <footer class="wrap foot">
+    <p>Автоматическая проверка не заменяет корректора: спорные места оцените сами.</p>
+  </footer>
+
+  <script src="checker.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
