@@ -22,15 +22,15 @@
         <label>Оклад по должности, ₽
           <input type="number" name="positionSalary" min="0" step="1" value="30000" inputmode="decimal">
         </label>
-        <label>Специальное звание
-          <select name="rank" id="rankSelect">
-            <option value="">— указать оклад вручную —</option>
-          </select>
-        </label>
+        <div class="rank-picker">
+          <span class="field-label" id="rankLabel">Специальное звание</span>
+          <input type="hidden" name="rank" value="11">
+          <div id="rankButtons" role="group" aria-labelledby="rankLabel"></div>
+        </div>
         <label>Оклад по специальному званию, ₽
-          <input type="number" name="rankSalary" min="0" step="1" value="20000" inputmode="decimal">
+          <input type="number" name="rankSalary" min="0" step="1" value="17322" inputmode="decimal">
         </label>
-        <p class="hint">Оклады смотрите в расчётном листке или выберите в таблицах <a href="#zvaniya">по званиям</a> и <a href="#oklady">по должностям</a>. Премии, материальная помощь и прочие надбавки в пенсию не входят.</p>
+        <p class="hint">Нажмите на звание — оклад подставится сам. Оклады также можно взять из расчётного листка или из таблиц <a href="#zvaniya">по званиям</a> и <a href="#oklady">по должностям</a>. Премии, материальная помощь и прочие надбавки в пенсию не входят.</p>
       </fieldset>
 
       <fieldset>

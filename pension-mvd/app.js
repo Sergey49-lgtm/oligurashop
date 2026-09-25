@@ -3,14 +3,43 @@
 
   var STORAGE_KEY = 'pension-mvd:v1';
   var form = document.getElementById('form');
-  var rankSelect = document.getElementById('rankSelect');
   var activeDate = PensionCalc.currentSalaryDate(new Date().toISOString().slice(0, 10));
-  PensionCalc.rankSalaries(activeDate).forEach(function (r, idx) {
-    var o = document.createElement('option');
-    o.value = String(idx);
-    o.textContent = r.name;
-    rankSelect.appendChild(o);
-  });
+  var rankInput = form.elements.rank;
+  var rankButtons = document.getElementById('rankButtons');
+  var RANK_GROUPS = [
+    { title: 'Рядовой и младший начсостав', from: 0, to: 6 },
+    { title: 'Средний начсостав', from: 7, to: 10 },
+    { title: 'Старший начсостав', from: 11, to: 13 },
+    { title: 'Высший начсостав', from: 14, to: 17 }
+  ];
+  var SHORT = { 'Рядовой полиции': 'Рядовой', 'Генерал полиции РФ': 'Генерал полиции' };
+  var rankList = PensionCalc.rankSalaries(activeDate);
+  rankButtons.innerHTML = RANK_GROUPS.map(function (g) {
+    var btns = '';
+    for (var k = g.from; k <= g.to; k++) {
+      var r = rankList[k];
+      btns += '<button type="button" class="rank-btn" data-rank="' + k + '" aria-pressed="false" title="' +
+        r.name + ': ' + r.salary + ' ₽">' + (SHORT[r.name] || r.name) + '</button>';
+    }
+    return '<div class="rank-group"><span class="rank-group-title">' + g.title + '</span><div class="rank-row">' + btns + '</div></div>';
+  }).join('');
+
+  function syncRank() {
+    Array.prototype.forEach.call(rankButtons.querySelectorAll('.rank-btn'), function (b) {
+      b.setAttribute('aria-pressed', b.getAttribute('data-rank') === rankInput.value ? 'true' : 'false');
+    });
+    var chosen = document.querySelectorAll('#ranksTable tbody tr');
+    Array.prototype.forEach.call(chosen, function (tr, k) {
+      tr.classList.toggle('chosen', String(k) === rankInput.value);
+    });
+  }
+
+  function chooseRank(k, salary) {
+    rankInput.value = String(k);
+    form.elements.rankSalary.value = salary != null ? salary : rankList[k].salary;
+    syncRank();
+    render();
+  }
   var defaults = snapshot();
 
   var money = new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 2 });
@@ -97,16 +126,22 @@
     if (saved) restore(saved);
   } catch (e) { /* игнорируем */ }
 
-  rankSelect.addEventListener('change', function () {
-    if (rankSelect.value === '') return;
-    form.elements.rankSalary.value = PensionCalc.rankSalaries(activeDate)[Number(rankSelect.value)].salary;
+  rankButtons.addEventListener('click', function (e) {
+    var b = e.target.closest('.rank-btn');
+    if (!b) return;
+    chooseRank(Number(b.getAttribute('data-rank')));
+    var input = form.elements.rankSalary;
+    input.classList.remove('flash');
+    void input.offsetWidth;
+    input.classList.add('flash');
   });
-  form.elements.rankSalary.addEventListener('input', function () { rankSelect.value = ''; });
+  form.elements.rankSalary.addEventListener('input', function () { rankInput.value = ''; syncRank(); });
   form.addEventListener('input', render);
   form.addEventListener('change', render);
   form.addEventListener('submit', function (e) { e.preventDefault(); });
   document.getElementById('reset').addEventListener('click', function () {
     restore(defaults);
+    syncRank();
     render();
   });
 
@@ -181,16 +216,19 @@
       return '<th scope="col"' + cls + '>' + label + (x.planned ? '<br><small>план</small>' : '') +
         '<br><small>+' + String(x.percent).replace('.', ',') + ' %</small></th>';
     }).join('') + '</tr></thead>';
-    var body = PensionCalc.rankHistory().map(function (r) {
+    var body = PensionCalc.rankHistory().map(function (r, idx) {
       return '<tr><th scope="row">' + r.name + '</th><td>' + rub.format(r.base) + '</td>' + r.steps.map(function (v, k) {
         var d = ix[k].date;
         if (!show(ix[k])) return '';
         var cls = d === activeDate ? ' class="active"' : '';
-        var cell = d >= activeDate ? pick('rankSalary', v, '') : rub.format(v);
+        var cell = d >= activeDate
+          ? pick('rankSalary', v, '').replace('class="pick"', 'class="pick" data-rank="' + idx + '"')
+          : rub.format(v);
         return '<td' + cls + '>' + cell + '</td>';
       }).join('') + '</tr>';
     }).join('');
     document.getElementById('ranksTable').innerHTML = head + '<tbody>' + body + '</tbody>';
+    syncRank();
   }
 
   document.querySelector('.tabs').addEventListener('click', function (e) {
@@ -209,14 +247,17 @@
     var b = e.target.closest('.pick');
     if (!b) return;
     var input = form.elements[b.getAttribute('data-field')];
-    input.value = b.getAttribute('data-value');
-    render();
+    if (b.hasAttribute('data-rank')) {
+      chooseRank(Number(b.getAttribute('data-rank')), b.getAttribute('data-value'));
+    } else {
+      input.value = b.getAttribute('data-value');
+      render();
+    }
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     input.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
     input.classList.remove('flash');
     void input.offsetWidth;
     input.classList.add('flash');
-    if (input.name === 'rankSalary') rankSelect.value = '';
   }
   table.addEventListener('click', onPick);
   document.getElementById('ranksTable').addEventListener('click', onPick);
