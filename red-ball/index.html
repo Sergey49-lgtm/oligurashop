@@ -99,10 +99,10 @@
   }
   .btn:hover { filter: brightness(1.06); }
   .btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #c28e00; }
-  .btn:focus-visible, .tbtn:focus-visible, .mute:focus-visible { outline: 3px solid var(--paper); outline-offset: 3px; }
+  .btn:focus-visible, .tbtn:focus-visible, .mute:focus-visible, .rotate button:focus-visible { outline: 3px solid var(--paper); outline-offset: 3px; }
 
+  .corner { position: absolute; bottom: 10px; right: 10px; display: flex; gap: 8px; z-index: 2; }
   .mute {
-    position: absolute; bottom: 10px; right: 10px;
     font: 600 12px/1 var(--body); color: var(--paper);
     background: rgba(21, 22, 61, 0.55); border: 0; border-radius: 999px;
     padding: 7px 11px; cursor: pointer;
@@ -131,6 +131,40 @@
     font: 600 12px/1 var(--body); color: var(--paper);
     border: 1px solid var(--line); border-bottom-width: 3px; border-radius: 5px; padding: 3px 6px;
   }
+  .rotate { display: none; margin: 0; color: var(--muted); text-align: center; font-size: 14px; }
+  @media (hover: none) and (pointer: coarse) and (orientation: portrait) { .rotate { display: block; } }
+
+  /* Full-screen mode: phone in landscape, or browser fullscreen */
+  body.full { overflow: hidden; overscroll-behavior: none; }
+  body.full .wrap { padding: 0; }
+  body.full header, body.full .help, body.full .rotate { display: none; }
+  body.full .stage {
+    position: fixed; inset: 0;
+    left: env(safe-area-inset-left, 0px); right: env(safe-area-inset-right, 0px);
+    width: auto; max-width: none; margin: 0;
+    border-radius: 0; box-shadow: none;
+    background: #15163d;
+    touch-action: none;
+  }
+  body.full canvas { width: 100%; height: 100%; aspect-ratio: auto; object-fit: contain; }
+  body.full .corner { top: 50px; bottom: auto; right: 12px; }
+  body.full .touch {
+    position: fixed; z-index: 3;
+    left: calc(env(safe-area-inset-left, 0px) + 18px);
+    right: calc(env(safe-area-inset-right, 0px) + 18px);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 14px);
+    align-items: flex-end;
+    pointer-events: none;
+  }
+  body.full .touch .tbtn {
+    pointer-events: auto;
+    width: 68px; height: 68px;
+    background: rgba(47, 50, 120, 0.5);
+    box-shadow: 0 4px 0 rgba(21, 22, 61, 0.5);
+  }
+  body.full .touch .tbtn.jump { width: 84px; height: 84px; background: rgba(227, 38, 46, 0.6); box-shadow: 0 4px 0 rgba(138, 14, 20, 0.6); }
+  body.full .overlay .card { max-height: calc(100% - 20px); overflow: auto; }
+
   @media (prefers-reduced-motion: reduce) { .btn:active, .tbtn.on { transform: none; } }
 </style>
 </head>
@@ -143,7 +177,10 @@
 
   <div class="stage" id="stage">
     <canvas id="c" width="960" height="540"></canvas>
-    <button class="mute" id="mute" type="button">Звук: вкл</button>
+    <div class="corner">
+      <button class="mute" id="fs" type="button" hidden>На весь экран</button>
+      <button class="mute" id="mute" type="button">Звук: вкл</button>
+    </div>
 
     <div class="overlay" id="ovTitle">
       <div class="card">
@@ -170,6 +207,8 @@
     </div>
   </div>
 
+  <p class="rotate">Поверни телефон горизонтально: игра развернётся на весь экран.</p>
+
   <div class="touch" id="touch">
     <div class="pad">
       <button class="tbtn" data-k="left" type="button" aria-label="Влево">◀</button>
@@ -181,7 +220,7 @@
   <ul class="help">
     <li><b><kbd>←</kbd> <kbd>→</kbd> / <kbd>A</kbd> <kbd>D</kbd></b> катиться</li>
     <li><b><kbd>Пробел</kbd> / <kbd>↑</kbd> / <kbd>W</kbd></b> прыжок, удержание выше</li>
-    <li><b><kbd>P</kbd> / <kbd>Esc</kbd></b> пауза, <b><kbd>M</kbd></b> звук</li>
+    <li><b><kbd>P</kbd> / <kbd>Esc</kbd></b> пауза, <b><kbd>M</kbd></b> звук, <b><kbd>F</kbd></b> весь экран</li>
     <li><b>Жук и летучая мышь</b> гибнут от прыжка сверху</li>
     <li><b>Блок «?»</b> ударь снизу и получи монету</li>
     <li><b>30 монет</b> дают ещё одну жизнь</li>
@@ -193,18 +232,48 @@
   "use strict";
   const cv = document.getElementById("c");
   const ctx = cv.getContext("2d");
-  const VW = 960, VH = 540, T = 36, ROWS = 15;
+  const VH = 540, T = 36, ROWS = 15;
+  let VW = 960; // width follows the screen's aspect ratio, height is always one level tall
   const GRAV = 2100, JUMP = 760, MAXV = 280;
   const SOLID = new Set(["g", "d", "b", "q", "u"]);
   const FONT = '"Russo One", "Arial Black", Impact, sans-serif';
 
+  const landscapePhone = window.matchMedia("(hover: none) and (pointer: coarse) and (orientation: landscape)");
+  function fsElement() { return document.fullscreenElement || document.webkitFullscreenElement; }
   function resize() {
+    document.body.classList.toggle("full", landscapePhone.matches || !!fsElement());
+    const w = cv.clientWidth, h = cv.clientHeight;
+    const ratio = document.body.classList.contains("full") && w && h ? w / h : 16 / 9;
+    VW = Math.round(VH * Math.max(4 / 3, Math.min(ratio, 2.4)));
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     cv.width = VW * dpr; cv.height = VH * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
-  resize();
   window.addEventListener("resize", resize);
+  window.addEventListener("orientationchange", () => setTimeout(resize, 200));
+  document.addEventListener("fullscreenchange", resize);
+  document.addEventListener("webkitfullscreenchange", resize);
+  if (window.ResizeObserver) new ResizeObserver(resize).observe(cv);
+  resize();
+
+  const fsBtn = document.getElementById("fs");
+  const root = document.documentElement;
+  if (root.requestFullscreen || root.webkitRequestFullscreen) fsBtn.hidden = false;
+  async function toggleFullscreen() {
+    try {
+      if (fsElement()) {
+        await (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+      } else {
+        await (root.requestFullscreen || root.webkitRequestFullscreen).call(root, { navigationUI: "hide" });
+        try { await screen.orientation.lock("landscape"); } catch (e) {}
+      }
+    } catch (e) {
+      fsBtn.hidden = true; // fullscreen is not allowed here; the landscape layout still fills the screen
+    }
+    fsBtn.blur();
+  }
+  fsBtn.addEventListener("click", toggleFullscreen);
+  document.addEventListener("fullscreenchange", () => { fsBtn.textContent = fsElement() ? "Обычный экран" : "На весь экран"; });
 
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   function mulberry32(a) {
@@ -1070,6 +1139,7 @@
     }
     if (e.code === "KeyP" || e.code === "Escape") pause(state !== "pause");
     if (e.code === "KeyM") { initAudio(); setMuted(!muted); }
+    if (e.code === "KeyF") toggleFullscreen();
     if (e.code === "Enter" && (state === "title" || state === "over") && document.activeElement.tagName !== "BUTTON") start();
   });
   window.addEventListener("keyup", (e) => { const k = keyMap[e.code]; if (k) setKey(k, false); });
