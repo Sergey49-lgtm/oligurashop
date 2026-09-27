@@ -19,9 +19,6 @@
     <form id="form" class="panel" autocomplete="off">
       <fieldset>
         <legend>Денежное довольствие</legend>
-        <label>Оклад по должности, ₽
-          <input type="number" name="positionSalary" min="0" step="1" value="30000" inputmode="decimal">
-        </label>
         <div class="rank-picker">
           <span class="field-label" id="rankLabel">Специальное звание</span>
           <input type="hidden" name="rank" value="11">
@@ -29,6 +26,9 @@
         </div>
         <label>Оклад по специальному званию, ₽
           <input type="number" name="rankSalary" min="0" step="1" value="17322" inputmode="decimal">
+        </label>
+        <label>Оклад по должности, ₽
+          <input type="number" name="positionSalary" min="0" step="1" value="30000" inputmode="decimal">
         </label>
         <p class="hint">Нажмите на звание — оклад подставится сам. Оклады также можно взять из расчётного листка или из таблиц <a href="#zvaniya">по званиям</a> и <a href="#oklady">по должностям</a>. Премии, материальная помощь и прочие надбавки в пенсию не входят.</p>
       </fieldset>

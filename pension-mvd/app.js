@@ -92,8 +92,8 @@
     }).join('');
 
     var html = '';
-    html += row('Оклад по должности', money.format(r.positionSalary));
     html += row('Оклад по званию', money.format(r.rankSalary));
+    html += row('Оклад по должности', money.format(r.positionSalary));
     html += row('Надбавка за стаж службы, ' + r.bonusPercent + ' %', money.format(r.bonusAmount));
     html += row('Денежное довольствие для пенсии', money.format(r.allowance), 'sum');
     html += row('× понижающий коэффициент ' + num.format(r.reductionCoef) + ' %', money.format(r.pensionBase));
