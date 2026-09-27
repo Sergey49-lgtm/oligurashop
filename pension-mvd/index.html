@@ -19,6 +19,9 @@
     <form id="form" class="panel" autocomplete="off">
       <fieldset>
         <legend>Денежное довольствие</legend>
+        <label>Оклад по должности, ₽
+          <input type="number" name="positionSalary" min="0" step="1" value="30000" inputmode="decimal">
+        </label>
         <div class="rank-picker">
           <span class="field-label" id="rankLabel">Специальное звание</span>
           <input type="hidden" name="rank" value="11">
@@ -27,10 +30,7 @@
         <label>Оклад по специальному званию, ₽
           <input type="number" name="rankSalary" min="0" step="1" value="17322" inputmode="decimal">
         </label>
-        <label>Оклад по должности, ₽
-          <input type="number" name="positionSalary" min="0" step="1" value="30000" inputmode="decimal">
-        </label>
-        <p class="hint">Нажмите на звание — оклад подставится сам. Оклады также можно взять из расчётного листка или из таблиц <a href="#zvaniya">по званиям</a> и <a href="#oklady">по должностям</a>. Премии, материальная помощь и прочие надбавки в пенсию не входят.</p>
+        <p class="hint">Нажмите на звание — оклад по званию подставится сам. Оклады также можно взять из расчётного листка или из таблиц <a href="#oklady">по должностям</a> и <a href="#zvaniya">по званиям</a>. Премии, материальная помощь и прочие надбавки в пенсию не входят.</p>
       </fieldset>
 
       <fieldset>
@@ -132,18 +132,6 @@
     </section>
   </main>
 
-  <section id="zvaniya" class="wrap tables-wrap">
-    <div class="panel">
-      <h2 class="tables-title">Оклады по специальным званиям</h2>
-      <p class="hint">По годам индексации. Нажмите на действующий оклад, чтобы подставить его в расчёт.</p>
-      <label class="check"><input type="checkbox" id="allYears"> Показать все индексации с 2018 года</label>
-      <div class="scroll-x">
-        <table class="ranks" id="ranksTable"></table>
-      </div>
-      <p class="hint">Базовые оклады — постановление Правительства РФ от 03.11.2011 № 878. Суммы после индексаций рассчитаны с округлением до рубля вверх; сверяйте с расчётным листком.</p>
-    </div>
-  </section>
-
   <section id="oklady" class="wrap tables-wrap">
     <div class="panel">
       <h2 class="tables-title">Оклады по должностям</h2>
@@ -166,6 +154,18 @@
         <table class="salaries" id="salaries"></table>
       </div>
       <p class="hint" id="tableNote"></p>
+    </div>
+  </section>
+
+  <section id="zvaniya" class="wrap tables-wrap">
+    <div class="panel">
+      <h2 class="tables-title">Оклады по специальным званиям</h2>
+      <p class="hint">По годам индексации. Нажмите на действующий оклад, чтобы подставить его в расчёт.</p>
+      <label class="check"><input type="checkbox" id="allYears"> Показать все индексации с 2018 года</label>
+      <div class="scroll-x">
+        <table class="ranks" id="ranksTable"></table>
+      </div>
+      <p class="hint">Базовые оклады — постановление Правительства РФ от 03.11.2011 № 878. Суммы после индексаций рассчитаны с округлением до рубля вверх; сверяйте с расчётным листком.</p>
     </div>
   </section>
 
