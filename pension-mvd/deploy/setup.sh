@@ -33,6 +33,11 @@ apt-get update -q
 apt-get install -y -q nginx
 systemctl enable --now nginx
 
+# Если включён брандмауэр ufw — открываем порты 80 и 443
+if command -v ufw >/dev/null && ufw status | grep -q "Status: active"; then
+  ufw allow 'Nginx Full'
+fi
+
 if [ -z "$DOMAIN" ]; then
   # Без домена: кладём в сайт nginx по умолчанию, конфигурацию не трогаем
   ROOT=/var/www/html/pension-mvd
@@ -81,10 +86,6 @@ NGINX
 fi
 nginx -t
 systemctl reload nginx
-
-if command -v ufw >/dev/null && ufw status | grep -q "Status: active"; then
-  ufw allow 'Nginx Full'
-fi
 
 if [ ! -d "/etc/letsencrypt/live/$DOMAIN" ]; then
   echo "==> Получаю сертификат HTTPS"
