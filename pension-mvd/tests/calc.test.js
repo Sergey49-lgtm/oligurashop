@@ -99,7 +99,7 @@ test('оклады по званиям: таблица и индексация �
   const now = C.rankSalaries('2025-10-01');
   assert.ok(now.every((r) => r.salary > r.base));
   assert.strictEqual(C.indexFrom(34388, '2026-04-27', '2025-12-31'), 34388);
-  assert.strictEqual(C.indexFrom(34388, '2026-04-27', '2026-10-01'), Math.ceil(34388 * 1.04));
+  assert.strictEqual(C.indexFrom(34388, '2026-04-27', '2026-10-01'), 34388);
 });
 
 test('история окладов по званию и действующая дата индексации', () => {
@@ -108,19 +108,19 @@ test('история окладов по званию и действующая 
   assert.strictEqual(major.steps.length, C.INDEXATIONS.length);
   assert.strictEqual(major.steps[7], C.indexSalary(11500, '2025-10-01'));
   assert.strictEqual(C.currentSalaryDate('2026-09-25'), '2025-10-01');
-  assert.strictEqual(C.currentSalaryDate('2026-10-01'), '2026-10-01');
+  assert.strictEqual(C.currentSalaryDate('2026-10-01'), '2025-10-01');
+  assert.strictEqual(C.INDEXATIONS[C.INDEXATIONS.length - 1].date, '2025-10-01');
 });
 
 test('должности по уровню органа с действующими окладами', () => {
-  const on = '2026-10-01';
+  const on = '2025-10-01';
   const d = C.positionOptions('district', on, false);
   assert.strictEqual(d[0].min, C.indexSalary(15000, on));
   assert.strictEqual(C.positionOptions('district', on, true)[0].min, C.capitalRegion(d[0].min));
   const duty = d.find((p) => p.name === 'Начальник дежурной части');
   assert.ok(duty.max > duty.min);
   const c = C.positionOptions('central', on, false);
-  assert.strictEqual(c[c.length - 1].min, Math.ceil(34388 * 1.04));
-  assert.strictEqual(C.positionOptions('central', '2026-09-30', false)[c.length - 1].min, 34388);
+  assert.strictEqual(c[c.length - 1].min, 34388);
   assert.strictEqual(C.positionOptions('typical', on, false).length, C.POSITIONS_TYPICAL.length);
   assert.deepStrictEqual(C.positionOptions('manual', on, false), []);
 });

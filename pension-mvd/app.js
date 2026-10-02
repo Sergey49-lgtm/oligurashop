@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var STORAGE_KEY = 'pension-mvd:v2';
+  var STORAGE_KEY = 'pension-mvd:v3';
   var C = PensionCalc;
   var form = document.getElementById('form');
   var el = function (id) { return document.getElementById(id); };
@@ -232,7 +232,7 @@
   var dateSelect = el('salaryDate');
   var tableCapital = el('tableCapital');
   var table = el('salaries');
-  dateSelect.value = activeDate >= '2026-10-01' ? '2026-10-01' : '2025-10-01';
+  dateSelect.value = activeDate;
 
   function pick(attrs, value, label) {
     return '<button type="button" class="pick" ' + attrs + ' data-value="' + value + '">' +
@@ -241,7 +241,7 @@
 
   var NOTES = {
     district: 'Нетиповые должности территориального органа районного уровня (приказ МВД России № 813, прил. 22). ' +
-      'В приказе суммы на 01.10.2023 (например, 19 976 ₽ у участкового); здесь они доиндексированы на 5,1 % (2024), 7,6 % (2025) и 4 % (2026).',
+      'В приказе суммы на 01.10.2023 (например, 19 976 ₽ у участкового); здесь они доиндексированы на 5,1 % (2024) и 7,6 % (2025).',
     central: 'Нетиповые должности центрального аппарата — приказ МВД России от 27.04.2026 № 247 ' +
       '(зарегистрирован в Минюсте 04.06.2026, заменил приказ № 373 от 16.06.2025).',
     typical: 'Типовые должности, постановление № 878. Размер зависит от уровня органа: центральный аппарат, ' +
