@@ -110,3 +110,17 @@ test('история окладов по званию и действующая 
   assert.strictEqual(C.currentSalaryDate('2026-09-25'), '2025-10-01');
   assert.strictEqual(C.currentSalaryDate('2026-10-01'), '2026-10-01');
 });
+
+test('должности по уровню органа с действующими окладами', () => {
+  const on = '2026-10-01';
+  const d = C.positionOptions('district', on, false);
+  assert.strictEqual(d[0].min, C.indexSalary(15000, on));
+  assert.strictEqual(C.positionOptions('district', on, true)[0].min, C.capitalRegion(d[0].min));
+  const duty = d.find((p) => p.name === 'Начальник дежурной части');
+  assert.ok(duty.max > duty.min);
+  const c = C.positionOptions('central', on, false);
+  assert.strictEqual(c[c.length - 1].min, Math.ceil(34388 * 1.04));
+  assert.strictEqual(C.positionOptions('central', '2026-09-30', false)[c.length - 1].min, 34388);
+  assert.strictEqual(C.positionOptions('typical', on, false).length, C.POSITIONS_TYPICAL.length);
+  assert.deepStrictEqual(C.positionOptions('manual', on, false), []);
+});

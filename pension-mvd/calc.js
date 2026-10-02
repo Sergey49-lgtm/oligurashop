@@ -63,6 +63,7 @@
   ];
 
   // Нетиповые должности центрального аппарата, приказ МВД России от 27.04.2026 № 247
+  var CENTRAL_ORDER_DATE = '2026-04-27';
   var POSITIONS_CENTRAL = [
     { name: 'Первый заместитель Министра — начальник службы', salary: 64473 },
     { name: 'Статс-секретарь — заместитель Министра', salary: 63039 },
@@ -131,6 +132,39 @@
   // Повышение на 10 % для Москвы, Санкт-Петербурга, Московской и Ленинградской областей
   function capitalRegion(value) {
     return Math.ceil(value * 1.1 - 1e-9);
+  }
+
+  // Уровни органов для выбора должности
+  var POSITION_LEVELS = [
+    { id: 'district', name: 'Территориальный орган — районный уровень (отдел, отделение МВД)' },
+    { id: 'central', name: 'Центральный аппарат МВД России' },
+    { id: 'typical', name: 'Типовые должности — все уровни' }
+  ];
+
+  // Должности уровня с действующими окладами: { name, min, max }
+  function positionOptions(level, onDate, capital) {
+    function cur(base) {
+      var v = indexSalary(base, onDate);
+      return capital ? capitalRegion(v) : v;
+    }
+    if (level === 'district') {
+      return POSITIONS_DISTRICT.map(function (p) {
+        return { name: p.name, min: cur(p.base), max: p.baseMax ? cur(p.baseMax) : cur(p.base) };
+      });
+    }
+    if (level === 'central') {
+      return POSITIONS_CENTRAL.map(function (p) {
+        var v = indexFrom(p.salary, CENTRAL_ORDER_DATE, onDate);
+        return { name: p.name, min: v, max: v };
+      });
+    }
+    if (level === 'typical') {
+      return POSITIONS_TYPICAL.map(function (p) {
+        var lo = indexSalary(p.base, onDate);
+        return { name: p.name, min: lo, max: p.baseMax ? indexSalary(p.baseMax, onDate) : lo };
+      });
+    }
+    return [];
   }
 
   function rankSalaries(onDate) {
@@ -343,7 +377,9 @@
     POSITIONS_DISTRICT: POSITIONS_DISTRICT,
     POSITIONS_CENTRAL: POSITIONS_CENTRAL,
     POSITIONS_TYPICAL: POSITIONS_TYPICAL,
-    CENTRAL_ORDER_DATE: '2026-04-27',
+    CENTRAL_ORDER_DATE: CENTRAL_ORDER_DATE,
+    POSITION_LEVELS: POSITION_LEVELS,
+    positionOptions: positionOptions,
     indexSalary: indexSalary,
     indexFrom: indexFrom,
     capitalRegion: capitalRegion,

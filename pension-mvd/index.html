@@ -17,73 +17,100 @@
   <header class="top">
     <div class="wrap">
       <h1>Калькулятор пенсии МВД</h1>
-      <p class="lead">Пенсия за выслугу лет по Закону РФ № 4468-1. Параметры на 2026 год, все значения можно поменять.</p>
+      <p class="lead">Пенсия за выслугу лет по Закону РФ № 4468-1. Оклады — действующие, после индексации 01.10.2026.</p>
     </div>
   </header>
 
-  <main class="wrap layout">
-    <form id="form" class="panel" autocomplete="off">
-      <fieldset>
-        <legend>Денежное довольствие</legend>
-        <label>Оклад по должности, ₽
-          <input type="number" name="positionSalary" min="0" step="1" value="30000" inputmode="decimal">
-        </label>
-        <div class="rank-picker">
-          <span class="field-label" id="rankLabel">Специальное звание</span>
-          <input type="hidden" name="rank" value="11">
-          <div id="rankButtons" role="group" aria-labelledby="rankLabel"></div>
+  <form id="form" class="wrap main" autocomplete="off">
+    <section class="panel steps" aria-label="Данные для расчёта">
+      <div class="step">
+        <span class="step-num" aria-hidden="true">1</span>
+        <div class="step-body">
+          <h2 class="step-title">Должность</h2>
+          <label>Где проходите службу
+            <select name="posLevel" id="posLevel"></select>
+          </label>
+          <label class="check" id="capitalWrap"><input type="checkbox" name="capital" id="capital"> Москва, Санкт-Петербург, Московская или Ленинградская область (+10 %)</label>
+          <label id="posIndexWrap">Должность
+            <select name="posIndex" id="posIndex"></select>
+          </label>
+          <label>Оклад по должности, ₽
+            <input type="number" name="positionSalary" id="positionSalary" min="0" step="1" inputmode="decimal">
+          </label>
+          <p class="hint" id="posHint"></p>
         </div>
-        <label>Оклад по специальному званию, ₽
-          <input type="number" name="rankSalary" min="0" step="1" value="18015" inputmode="decimal">
-        </label>
-        <p class="hint">Нажмите на звание — оклад по званию подставится сам. Оклады также можно взять из расчётного листка или из таблиц <a href="#oklady">по должностям</a> и <a href="#zvaniya">по званиям</a>. Премии, материальная помощь и прочие надбавки в пенсию не входят.</p>
-      </fieldset>
+      </div>
 
-      <fieldset>
-        <legend>Основание</legend>
-        <div class="seg" role="radiogroup">
-          <label><input type="radio" name="mode" value="seniority" checked> Выслуга 20+ лет</label>
-          <label><input type="radio" name="mode" value="mixed"> Смешанный стаж</label>
-        </div>
-        <div class="row">
-          <label>Выслуга, лет
-            <input type="number" name="serviceYears" min="0" max="60" step="1" value="20">
+      <div class="step">
+        <span class="step-num" aria-hidden="true">2</span>
+        <div class="step-body">
+          <h2 class="step-title">Специальное звание</h2>
+          <label>Звание
+            <select name="rank" id="rank"></select>
           </label>
-          <label>и месяцев
-            <input type="number" name="serviceMonths" min="0" max="11" step="1" value="0">
+          <label>Оклад по званию, ₽
+            <input type="number" name="rankSalary" id="rankSalary" min="0" step="1" inputmode="decimal">
           </label>
         </div>
-        <p class="hint">С учётом льготного исчисления (например, служба в районах Крайнего Севера, в зоне боевых действий) и зачёта учёбы.</p>
-        <div id="mixedFields" hidden>
+      </div>
+
+      <div class="step">
+        <span class="step-num" aria-hidden="true">3</span>
+        <div class="step-body">
+          <h2 class="step-title">Выслуга лет</h2>
           <div class="row">
-            <label>Общий трудовой стаж, лет
-              <input type="number" name="totalWorkYears" min="0" max="70" step="1" value="25">
+            <label>Лет
+              <input type="number" name="serviceYears" id="serviceYears" min="0" max="60" step="1" value="20">
             </label>
-            <label>и месяцев
-              <input type="number" name="totalWorkMonths" min="0" max="11" step="1" value="0">
+            <label>Месяцев
+              <input type="number" name="serviceMonths" id="serviceMonths" min="0" max="11" step="1" value="0">
             </label>
           </div>
-          <label>Возраст на день увольнения
-            <input type="number" name="age" min="18" max="100" step="1" value="45">
-          </label>
+          <p class="hint">С учётом льготного исчисления (Крайний Север, зона боевых действий) и зачёта учёбы.</p>
         </div>
-      </fieldset>
+      </div>
+
+      <div class="step">
+        <span class="step-num" aria-hidden="true">4</span>
+        <div class="step-body">
+          <button type="submit" class="primary" id="calcBtn">Рассчитать пенсию</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel result" id="result" aria-live="polite" hidden>
+      <p class="caption">Пенсия в месяц</p>
+      <p class="total" id="total">—</p>
+      <p class="sub" id="totalSub"></p>
+      <ul class="warnings" id="warnings"></ul>
+      <h2>Как посчитано</h2>
+      <table class="breakdown" id="breakdown"></table>
+      <button type="button" class="ghost print" onclick="window.print()">Распечатать расчёт</button>
+    </section>
+
+    <section class="panel refine" id="refine" hidden>
+      <h2 class="section-title">Уточнить расчёт</h2>
+      <p class="hint">Изменения сразу пересчитывают пенсию.</p>
 
       <fieldset>
         <legend>Надбавки к пенсии</legend>
         <label>Нетрудоспособные иждивенцы
-          <select name="dependents">
+          <select name="dependents" id="dependents">
             <option value="0">нет</option>
             <option value="1">1 (+32 % РРП)</option>
             <option value="2">2 (+64 % РРП)</option>
             <option value="3">3 и более (+100 % РРП)</option>
           </select>
         </label>
-        <label class="check"><input type="checkbox" name="combatVeteran"> Ветеран боевых действий (+32 % РРП)</label>
-        <label class="check"><input type="checkbox" name="disabledGroup1"> Инвалид I группы (+100 % РРП)</label>
-        <label class="check"><input type="checkbox" name="age80"> Возраст 80 лет и старше (+100 % РРП)</label>
-        <label>Районный коэффициент по месту жительства
-          <select name="regionalCoef">
+        <label class="check"><input type="checkbox" name="combatVeteran" id="combatVeteran"> Ветеран боевых действий (+32 % РРП)</label>
+        <label class="check"><input type="checkbox" name="disabledGroup1" id="disabledGroup1"> Инвалид I группы (+100 % РРП)</label>
+        <label class="check"><input type="checkbox" name="age80" id="age80"> Возраст 80 лет и старше (+100 % РРП)</label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Место жительства</legend>
+        <label>Районный коэффициент
+          <select name="regionalCoef" id="regionalCoef">
             <option value="1">нет (1,0)</option>
             <option value="1.15">1,15</option>
             <option value="1.2">1,2</option>
@@ -99,48 +126,61 @@
         </label>
       </fieldset>
 
+      <fieldset>
+        <legend>Основание для пенсии</legend>
+        <div class="seg" role="radiogroup">
+          <label><input type="radio" name="mode" value="seniority" checked> Выслуга 20+ лет</label>
+          <label><input type="radio" name="mode" value="mixed"> Смешанный стаж</label>
+        </div>
+        <div id="mixedFields" hidden>
+          <div class="row">
+            <label>Общий трудовой стаж, лет
+              <input type="number" name="totalWorkYears" id="totalWorkYears" min="0" max="70" step="1" value="25">
+            </label>
+            <label>и месяцев
+              <input type="number" name="totalWorkMonths" id="totalWorkMonths" min="0" max="11" step="1" value="0">
+            </label>
+          </div>
+          <label>Возраст на день увольнения
+            <input type="number" name="age" id="age" min="18" max="100" step="1" value="45">
+          </label>
+        </div>
+      </fieldset>
+
       <details class="advanced">
         <summary>Дополнительные параметры</summary>
         <label>Понижающий коэффициент, %
-          <input type="number" name="reductionCoef" min="0" max="100" step="0.01" value="93.59">
+          <input type="number" name="reductionCoef" id="reductionCoef" min="0" max="100" step="0.01" value="93.59">
         </label>
         <label>Расчётный размер пенсии (РРП), ₽
-          <input type="number" name="rrp" min="0" step="0.01" value="9513.42">
+          <input type="number" name="rrp" id="rrp" min="0" step="0.01" value="9513.42">
         </label>
         <label>Надбавка за стаж службы, % (пусто — по таблице)
-          <input type="number" name="bonusPercent" min="0" max="100" step="1" placeholder="авто">
+          <input type="number" name="bonusPercent" id="bonusPercent" min="0" max="100" step="1" placeholder="авто">
         </label>
         <label>Индексация окладов для прогноза, %
-          <input type="number" name="salaryIndexation" min="-50" max="100" step="0.1" value="0">
+          <input type="number" name="salaryIndexation" id="salaryIndexation" min="-50" max="100" step="0.1" value="0">
         </label>
         <p class="hint">Чтобы прикинуть пенсию после следующей индексации окладов, укажите её размер, например 4.</p>
         <button type="button" id="reset" class="ghost">Сбросить всё</button>
       </details>
-    </form>
+    </section>
 
-    <section class="panel result" aria-live="polite">
-      <p class="caption">Пенсия в месяц</p>
-      <p class="total" id="total">—</p>
-      <p class="sub" id="totalSub"></p>
-      <ul class="warnings" id="warnings"></ul>
-
-      <h2>Как посчитано</h2>
-      <table class="breakdown" id="breakdown"></table>
-
-      <h2>Если послужить ещё</h2>
+    <section class="panel" id="forecastPanel" hidden>
+      <h2 class="section-title">Если послужить ещё</h2>
       <p class="hint">При тех же окладах и коэффициентах.</p>
       <table class="forecast" id="forecast">
         <thead><tr><th>Выслуга</th><th>%</th><th>Пенсия</th><th>Прибавка</th></tr></thead>
         <tbody></tbody>
       </table>
-
-      <button type="button" class="ghost print" onclick="window.print()">Распечатать расчёт</button>
     </section>
-  </main>
+  </form>
 
-  <section id="oklady" class="wrap tables-wrap">
-    <div class="panel">
-      <h2 class="tables-title">Оклады по должностям</h2>
+  <div class="wrap reference">
+    <h2 class="reference-title">Справочник окладов</h2>
+
+    <section id="oklady" class="panel">
+      <h3 class="tables-title">Оклады по должностям</h3>
       <p class="hint">Нажмите на сумму, чтобы подставить её в расчёт.</p>
       <div class="tabs" role="tablist">
         <button type="button" role="tab" id="tab-district" data-tab="district" aria-selected="true">Районный отдел</button>
@@ -154,26 +194,24 @@
             <option value="2026-10-01">действующие, с 01.10.2026</option>
           </select>
         </label>
-        <label class="check" id="capitalWrap"><input type="checkbox" id="capital"> Москва, Санкт-Петербург, Московская и Ленинградская области (+10 %)</label>
+        <label class="check" id="tableCapitalWrap"><input type="checkbox" id="tableCapital"> Москва, Санкт-Петербург, Московская и Ленинградская области (+10 %)</label>
       </div>
       <div class="scroll-x">
         <table class="salaries" id="salaries"></table>
       </div>
       <p class="hint" id="tableNote"></p>
-    </div>
-  </section>
+    </section>
 
-  <section id="zvaniya" class="wrap tables-wrap">
-    <div class="panel">
-      <h2 class="tables-title">Оклады по специальным званиям</h2>
+    <section id="zvaniya" class="panel">
+      <h3 class="tables-title">Оклады по специальным званиям</h3>
       <p class="hint">По годам индексации. Нажмите на действующий оклад, чтобы подставить его в расчёт.</p>
       <label class="check"><input type="checkbox" id="allYears"> Показать все индексации с 2018 года</label>
       <div class="scroll-x">
         <table class="ranks" id="ranksTable"></table>
       </div>
       <p class="hint">Базовые оклады — постановление Правительства РФ от 03.11.2011 № 878. Суммы после индексаций рассчитаны с округлением до рубля вверх; сверяйте с расчётным листком.</p>
-    </div>
-  </section>
+    </section>
+  </div>
 
   <footer class="wrap foot">
     <p>Формула: (оклад по должности + оклад по званию) × (1 + надбавка за стаж) × понижающий коэффициент × процент за выслугу + надбавки от РРП, всё × районный коэффициент.</p>
