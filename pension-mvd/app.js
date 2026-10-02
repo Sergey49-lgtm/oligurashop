@@ -125,6 +125,10 @@
     var saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
     if (saved) restore(saved);
   } catch (e) { /* игнорируем */ }
+  // Если выбрано звание, оклад берём из действующей таблицы (после индексации он меняется)
+  if (rankInput.value !== '' && rankList[Number(rankInput.value)]) {
+    form.elements.rankSalary.value = rankList[Number(rankInput.value)].salary;
+  }
 
   rankButtons.addEventListener('click', function (e) {
     var b = e.target.closest('.rank-btn');
@@ -178,7 +182,7 @@
         return [r.name, rub.format(r.base) + (r.baseMax ? '–' + rub.format(r.baseMax) : '') + ' ₽', cell];
       });
       note = 'Нетиповые должности территориального органа районного уровня (приказ МВД России № 813, прил. 22). ' +
-        'В приказе суммы на 01.10.2023 (например, 19 976 ₽ у участкового); здесь они доиндексированы на 5,1 % (2024) и 7,6 % (2025).';
+        'В приказе суммы на 01.10.2023 (например, 19 976 ₽ у участкового); здесь они доиндексированы на 5,1 % (2024), 7,6 % (2025) и 4 % (2026).';
     } else if (tab === 'central') {
       head = ['Должность', 'По приказу № 247', 'Оклад сейчас'];
       rows = PensionCalc.POSITIONS_CENTRAL.map(function (r) {

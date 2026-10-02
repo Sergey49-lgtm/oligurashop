@@ -34,7 +34,7 @@
           <div id="rankButtons" role="group" aria-labelledby="rankLabel"></div>
         </div>
         <label>Оклад по специальному званию, ₽
-          <input type="number" name="rankSalary" min="0" step="1" value="17322" inputmode="decimal">
+          <input type="number" name="rankSalary" min="0" step="1" value="18015" inputmode="decimal">
         </label>
         <p class="hint">Нажмите на звание — оклад по званию подставится сам. Оклады также можно взять из расчётного листка или из таблиц <a href="#oklady">по должностям</a> и <a href="#zvaniya">по званиям</a>. Премии, материальная помощь и прочие надбавки в пенсию не входят.</p>
       </fieldset>
@@ -113,7 +113,7 @@
         <label>Индексация окладов для прогноза, %
           <input type="number" name="salaryIndexation" min="-50" max="100" step="0.1" value="0">
         </label>
-        <p class="hint">Например, 4 — чтобы увидеть пенсию после индексации окладов с 1 октября 2026 года.</p>
+        <p class="hint">Чтобы прикинуть пенсию после следующей индексации окладов, укажите её размер, например 4.</p>
         <button type="button" id="reset" class="ghost">Сбросить всё</button>
       </details>
     </form>
@@ -150,8 +150,8 @@
       <div class="table-controls">
         <label>Оклады на дату
           <select id="salaryDate">
-            <option value="2025-10-01">действующие, с 01.10.2025</option>
-            <option value="2026-10-01">с 01.10.2026 (план, +4 %)</option>
+            <option value="2025-10-01">с 01.10.2025 (до индексации 2026 года)</option>
+            <option value="2026-10-01">действующие, с 01.10.2026</option>
           </select>
         </label>
         <label class="check" id="capitalWrap"><input type="checkbox" id="capital"> Москва, Санкт-Петербург, Московская и Ленинградская области (+10 %)</label>
